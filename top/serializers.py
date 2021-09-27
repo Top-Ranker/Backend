@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, problems, submissionA
+from .models import User, Problem, Submission
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -9,13 +9,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ProblemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = problems
-        fields = ['id', 'Name','type','Description','Difficulty', 'Contributor', 'Fitness_function','Visibility','dimensions', 'domain']
-        read_only_fields = ['validity']
-
+        model = Problem
+        fields = ['question_id', 'name','type','description','difficulty', 'contributor', 'fitness_function','visibility','dimensions', 'domain']
+        
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = submissionA
-        fields = ['question_id', 'user_id', 'dimensions', 'Solution', 'Score', 'time', 'submissionDesc']
-
-
+        model = Submission
+        fields = ['id','question_id','user_id','dimension','solution','time','submissionDesc','score']
+        read_only_fields = ['score','user_id','question_id']

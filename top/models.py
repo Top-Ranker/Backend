@@ -4,13 +4,16 @@ from rest_framework.authentication import TokenAuthentication
 
 
 class User(AbstractUser):
-    username = models.CharField(max_length=100, unique=True, blank=True, null=True)
+    username = models.CharField(max_length=100, unique=True, blank=True, null=True,default="temp")
     email = models.EmailField(unique=True,blank=True,null=True)
     country = models.CharField(max_length=100,blank=True,null=True)
     age = models.IntegerField(null = True,blank=True)
     field = models.CharField(max_length=100,null=True,blank=True)
     profession = models.CharField(max_length=100,null=True,blank=True)
     university = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.username
 
 
 class BearerAuthentication(TokenAuthentication):
@@ -22,52 +25,43 @@ class BearerAuthentication(TokenAuthentication):
     '''
     keyword = 'Bearer'
 
+class Dimension(models.Model):
+    dimension = models.SmallIntegerField(primary_key=True)
 
-class problems(models.Model):
-    Difficulty_choices = [
+    def __str__(self):
+        return str(self.dimension)
+
+class Problem(models.Model):
+    difficulty_choices = [
         ('Easy', 'Easy'),
         ('Medium', 'Medium'),
         ('Hard', 'Hard')
     ]
-    Visibility_choices = [
-        ('yes', 'yes'),
-        ('no', 'no')
-    ]
+
     type_choices = [
         ('Maximization', 'Maximization'),
         ('Minimization', 'Minimization')
     ]
-    Name = models.CharField(max_length = 100)
+    question_id = models.CharField(max_length=100,primary_key=True)
+    name = models.CharField(max_length = 100)
     type = models.CharField(max_length=20, choices=type_choices)
-    Description = models.TextField()
-    Difficulty = models.CharField(max_length = 20, choices=Difficulty_choices)
-    Fitness_function = models.TextField()
-    Contributor = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
-    Visibility = models.CharField(max_length= 20, choices = Visibility_choices)
-    dimensions = models.IntegerField()
+    description = models.TextField()
+    difficulty = models.CharField(max_length = 20, choices=difficulty_choices)
+    fitness_function = models.TextField(null = True)
+    contributor = models.ForeignKey(User, on_delete = models.CASCADE, null=True,to_field='username')
+    visibility = models.BooleanField(default=True,null=False)
+    dimensions = models.ManyToManyField(Dimension)
     domain = models.CharField(max_length = 100)
-    validity = models.BooleanField(default=0, null=True, blank=True)
 
-    def __str__(self):
-        return self.Name
-
-
-# class submissionB(models.Model):
-#     solution = models.TextField()
-#     score = models.IntegerField()
-#     dimensions_of_sol = models.IntegerField()
-#     solver = models.ForeignKey(User, on_delete = models.CASCADE)
-#
-#
-class submissionA(models.Model):
-    question_id = models.ForeignKey(problems, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    dimensions = models.IntegerField()
-    Solution = models.TextField()
-    Score = models.IntegerField()
+class Submission(models.Model):
+    question_id = models.ForeignKey(Problem, on_delete=models.CASCADE,to_field='question_id')
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE,to_field='username')
+    dimension = models.ForeignKey(Dimension,on_delete=models.CASCADE,to_field='dimension')
+    solution = models.TextField()
+    score = models.IntegerField()
     time = models.TimeField(auto_now=True)
     submissionDesc = models.TextField()
-#
+
 #
 # class Contest(models.Model):
 #     type_choices = (

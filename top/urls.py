@@ -13,23 +13,32 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django import urls
-from django.urls import path,include
-from .views import index,RegisterView,UserView,ProblemView,ProblemPostAPIView, SubmissionListView
+from top.models import User
+from django.urls import path
+from .views import index,logout,RegisterView,UserView,ProblemView,ProblemAddView,SubmissionView,AddSubmission
 from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework.routers import DefaultRouter
 
 
-
-
+router= DefaultRouter()
+router.register(r'api/problems',ProblemView,basename='problem')
+router.register(r'api/submissions',SubmissionView,basename='submissions')
 urlpatterns = [
     path('',index,name="index"),
     path('api/auth',RegisterView.as_view(),name="reg"),
     path('api/gettoken',obtain_auth_token,name="login"),
     path('api/user',UserView.as_view(),name="view/delete"),
-    # path('api/getproblems', ProblemView.as_view(), name="getproblems"),
-    path('getpost/', ProblemPostAPIView.as_view(), name="postproblems"),
-    path('getupdate/<int:id>/', ProblemView.as_view(), name="getproblems"),
-    path('getsubmission/', SubmissionListView.as_view(), name = "Submissionview")
+    path('api/logout',logout,name="logout"),
+    path('api/problemadd',ProblemAddView.as_view(),name="problemadd"),
+    path('api/addsubmission',AddSubmission.as_view(),name="addsubmission")
+
+
+
+
+
+    # path('getpost/', ProblemPostAPIView.as_view(), name="postproblems"),
+    # path('getupdate/<int:id>/', ProblemView.as_view(), name="getproblems"),
+    # path('getsubmission/', SubmissionListView.as_view(), name = "Submissionview")
 
 #/(?P<id>\d+)/$
-]
+] + router.urls
