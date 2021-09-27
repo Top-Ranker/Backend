@@ -1,15 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from rest_framework.authentication import TokenAuthentication
 
 
-# Create your models here.
 class User(AbstractUser):
+    username = models.CharField(max_length=100, unique=True, blank=True, null=True)
     email = models.EmailField(unique=True,blank=True,null=True)
     country = models.CharField(max_length=100,blank=True,null=True)
     age = models.IntegerField(null = True,blank=True)
-    field = models.CharField(max_length=100,null=True,blank=True) 
-    profession = models.CharField(max_length=100,null=True,blank=True) 
-    university = models.CharField(max_length=100,null=True,blank=True)
+    field = models.CharField(max_length=100,null=True,blank=True)
+    profession = models.CharField(max_length=100,null=True,blank=True)
+    university = models.CharField(max_length=100, null=True, blank=True)
+
+
+class BearerAuthentication(TokenAuthentication):
+    '''
+    Simple token based authentication using utvsapitoken.
+    Clients should authenticate by passing the token key in the 'Authorization'
+    HTTP header, prepended with the string 'Bearer '.  For example:
+    Authorization: Bearer 956e252a-513c-48c5-92dd-bfddc364e812
+    '''
+    keyword = 'Bearer'
 
 
 class problems(models.Model):
@@ -31,7 +42,7 @@ class problems(models.Model):
     Description = models.TextField()
     Difficulty = models.CharField(max_length = 20, choices=Difficulty_choices)
     Fitness_function = models.TextField()
-    Contributor = models.ForeignKey(User, on_delete = models.CASCADE)
+    Contributor = models.ForeignKey(User, on_delete = models.CASCADE, null=True)
     Visibility = models.CharField(max_length= 20, choices = Visibility_choices)
     dimensions = models.IntegerField()
     domain = models.CharField(max_length = 100)
@@ -48,13 +59,14 @@ class problems(models.Model):
 #     solver = models.ForeignKey(User, on_delete = models.CASCADE)
 #
 #
-# class submissionA(models.Model):
-#     question_id = models.ForeignKey(problems, on_delete=models.CASCADE)
-#     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-#     dimensions = models.IntegerField()
-#     Solution = models.TextField()
-#     Score = models.IntegerField()
-#     time = models.TimeField()
+class submissionA(models.Model):
+    question_id = models.ForeignKey(problems, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    dimensions = models.IntegerField()
+    Solution = models.TextField()
+    Score = models.IntegerField()
+    time = models.TimeField(auto_now=True)
+    submissionDesc = models.TextField()
 #
 #
 # class Contest(models.Model):

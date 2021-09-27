@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django import urls
 from django.urls import path,include
-from .views import index,RegisterView,UserView,ProblemView,ProblemPostAPIView
+from .views import index,RegisterView,UserView,ProblemView,ProblemPostAPIView, SubmissionListView
 from rest_framework.authtoken.views import obtain_auth_token
 
 
@@ -27,7 +27,9 @@ urlpatterns = [
     path('api/gettoken',obtain_auth_token,name="login"),
     path('api/user',UserView.as_view(),name="view/delete"),
     # path('api/getproblems', ProblemView.as_view(), name="getproblems"),
-    path('getpost', ProblemPostAPIView.as_view(), name="postproblems"),
-    path('getupdate/<int:id>/', ProblemView.as_view(), name="getproblems")
+    path('getpost/', ProblemPostAPIView.as_view(), name="postproblems"),
+    path('getupdate/<int:id>/', ProblemView.as_view(), name="getproblems"),
+    path('getsubmission/', SubmissionListView.as_view(), name = "Submissionview")
+
 #/(?P<id>\d+)/$
 ]
