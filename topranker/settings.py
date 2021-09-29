@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    'django_filters'
+    'coderunner',
 ]
 
 MIDDLEWARE = [
@@ -142,7 +142,6 @@ REST_FRAMEWORK = {
    'rest_framework.permissions.AllowAny',
 
     ),
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
 

@@ -3,7 +3,7 @@ from .serializers import UserSerializer, ProblemSerializer, SubmissionSerializer
 from .models import User, Problem,Submission,BearerAuthentication,Dimension
 from django.contrib.auth import logout
 from django.contrib.auth.hashers import make_password
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,7 +11,10 @@ from rest_framework.views import APIView
 from .serializers import UserSerializer
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+import requests
+import json
 
+auth_key = '8Tj4MPqAI7;_oZU`C5Ni' # Randomly Generated String in Python
 
 
 # Create your views here.
@@ -108,6 +111,8 @@ class AddSubmission(APIView):
         serializer = SubmissionSerializer(data = request.data)
         question_id = request.data['question_id']
         dimension = int(request.data['dimension'])
+      
+
         available_dimensions = list(Problem.objects.filter(question_id = question_id).values_list('dimensions',flat=True))
         if dimension not in available_dimensions:
             return Response({
@@ -115,8 +120,23 @@ class AddSubmission(APIView):
             })
 
         if serializer.is_valid():
-            # Score is currently set to 100 (to be fetched from other API)
-            serializer.save(question_id = Problem.objects.get(question_id=question_id),user_id = userid,score = 100)
+            question = Problem.objects.get(question_id=question_id)
+            data = {}
+            data['language'] = question.language # To be changed later
+            data['code'] = question.fitness_function
+            data['input'] = request.data['input']
+            data['authkey'] = auth_key
+            url = "http://localhost:8000/api/code"
+            payload = json.dumps(data)
+            headers = {
+            'Content-Type': 'application/json'
+            }
+            response = requests.request("POST", url, headers=headers, data=payload)
+            response_data = json.loads(response.text)
+            score_recieved = int(response_data['output'])
+            if question.type == "Minimization":
+                score_recieved = -score_recieved
+            serializer.save(question_id = Problem.objects.get(question_id=question_id),user_id = userid,score = score_recieved)
             return Response(serializer.data,status = status.HTTP_201_CREATED)
         return Response(serializer.errors,status = status.HTTP_400_BAD_REQUEST)
 
@@ -169,6 +189,7 @@ class SubmissionView(viewsets.ViewSet):
         serializer= ProblemSerializer(submission)
         return Response(serializer.data)
         
+
 
 
 

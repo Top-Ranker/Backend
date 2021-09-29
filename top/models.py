@@ -42,6 +42,13 @@ class Problem(models.Model):
         ('Maximization', 'Maximization'),
         ('Minimization', 'Minimization')
     ]
+
+    language_choices = [
+        ('C++','C++'),
+        ('Python','Python'),
+        ('C','C')
+    ]
+
     question_id = models.CharField(max_length=100,primary_key=True)
     name = models.CharField(max_length = 100)
     type = models.CharField(max_length=20, choices=type_choices)
@@ -52,6 +59,7 @@ class Problem(models.Model):
     visibility = models.BooleanField(default=True,null=False)
     dimensions = models.ManyToManyField(Dimension)
     domain = models.CharField(max_length = 100)
+    language = models.CharField(max_length=100,choices=language_choices,null=True,blank=True)
 
 class Submission(models.Model):
     question_id = models.ForeignKey(Problem, on_delete=models.CASCADE,to_field='question_id')
@@ -60,6 +68,7 @@ class Submission(models.Model):
     solution = models.TextField()
     score = models.IntegerField()
     time = models.TimeField(auto_now=True)
+    input = models.TextField(null = True, blank = True)
     submissionDesc = models.TextField()
 
 #

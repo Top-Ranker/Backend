@@ -10,10 +10,10 @@ class UserSerializer(serializers.ModelSerializer):
 class ProblemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
-        fields = ['question_id', 'name','type','description','difficulty', 'contributor', 'fitness_function','visibility','dimensions', 'domain']
+        fields = ['question_id', 'name','type','description','difficulty', 'contributor', 'fitness_function','visibility','dimensions', 'domain','language']
         
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = ['id','question_id','user_id','dimension','solution','time','submissionDesc','score']
+        fields = ['id','question_id','user_id','dimension','solution','time','submissionDesc','score','input']
         read_only_fields = ['score','user_id','question_id']
