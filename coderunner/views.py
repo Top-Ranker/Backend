@@ -44,8 +44,7 @@ class RunCode(APIView):
                 main_code = open(f"code_files/code/python/{file}.py",'w') 
                 main_code.writelines(code)
                 main_code.close()
-                # py -> python3
-                p = subprocess.Popen(f'py code_files/code/python/{file}.py', shell=True,stdin=input_file,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                p = subprocess.Popen(f'python code_files/code/python/{file}.py', shell=True,stdin=input_file,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 out, err = p.communicate()
                 os.remove(f'./code_files/code/python/{file}.py')
 
