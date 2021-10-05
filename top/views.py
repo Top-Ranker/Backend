@@ -72,8 +72,24 @@ class ProblemView(viewsets.ViewSet):
             problems = Problem.objects.all()
         else:
             problems = Problem.objects.filter(difficulty=filter)
-        serializer = ProblemSerializer(problems, many=True)
-        return Response(serializer.data)
+        custom_json_data = []
+        for elem in problems : 
+            problem_data = {
+                'id' : elem.question_id,
+                'name' : elem.name,
+                'difficulty' : elem.difficulty,
+                'country' : elem.contributor.country,
+                'domain' : elem.domain,
+                'fitness_function' : elem.fitness_function,
+                'language' : elem.language,
+                'dimension' : [{
+                    'dimension': el.dimension,
+                    'participationD' : len(Submission.objects.filter(question_id = elem.question_id,dimension=el.dimension))
+                    } for el in elem.dimensions.all()],
+                'participationAll' : len(Submission.objects.filter(question_id = elem.question_id))
+            }
+            custom_json_data.append(problem_data)
+        return Response(custom_json_data)
 
     def retrieve(self, request, pk):
         problems = Problem.objects.all()
