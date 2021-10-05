@@ -88,7 +88,7 @@ class ProblemView(viewsets.ViewSet):
                     } for el in elem.dimensions.all()],
                 'participationAll' : len(Submission.objects.filter(question_id = elem.question_id))
             }
-            custom_json_data.append(problem_data)
+            custom_json_data.append(problem_data.copy())
         return Response(custom_json_data)
 
     def retrieve(self, request, pk):
