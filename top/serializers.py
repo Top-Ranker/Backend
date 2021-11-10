@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ProblemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
-        fields = ['question_id', 'name', 'type', 'description', 'difficulty', 'contributor', 'fitness_function',
+        fields = ['id', 'name', 'type', 'description', 'difficulty', 'contributor', 'fitness_function',
                   'visibility', 'dimensions', 'domain', 'language']
 
 

@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from .models import User, Problem, Submission, BearerAuthentication, Dimension
 from .serializers import ProblemSerializer, SubmissionSerializer
 from .serializers import UserSerializer
-
+from .utils import custom_problem_data
 auth_key = '8Tj4MPqAI7;_oZU`C5Ni'  # Randomly Generated String in Python
 
 
@@ -72,28 +72,12 @@ class ProblemView(viewsets.ViewSet):
             problems = Problem.objects.all()
         else:
             problems = Problem.objects.filter(difficulty=filter)
-        custom_json_data = []
-        for elem in problems : 
-            problem_data = {
-                'id' : elem.question_id,
-                'name' : elem.name,
-                'difficulty' : elem.difficulty,
-                'country' : elem.contributor.country,
-                'domain' : elem.domain,
-                'fitness_function' : elem.fitness_function,
-                'language' : elem.language,
-                'dimension' : [{
-                    'dimension': el.dimension,
-                    'participationD' : len(Submission.objects.filter(question_id = elem.question_id,dimension=el.dimension))
-                    } for el in elem.dimensions.all()],
-                'participationAll' : len(Submission.objects.filter(question_id = elem.question_id))
-            }
-            custom_json_data.append(problem_data.copy())
+        custom_json_data = custom_problem_data(problems)
         return Response(custom_json_data)
 
     def retrieve(self, request, pk):
         problems = Problem.objects.all()
-        problem = get_object_or_404(problems, question_id=pk)
+        problem = get_object_or_404(problems, pk=pk)
         serializer = ProblemSerializer(problem)
         return Response(serializer.data)
 
@@ -124,18 +108,18 @@ class AddSubmission(APIView):
     def post(self, request):
         userid = request.user
         serializer = SubmissionSerializer(data=request.data)
-        question_id = request.data['question_id']
+        id = request.data['question_id']
         dimension = int(request.data['dimension'])
 
         available_dimensions = list(
-            Problem.objects.filter(question_id=question_id).values_list('dimensions', flat=True))
+            Problem.objects.filter(id=id).values_list('dimensions', flat=True))
         if dimension not in available_dimensions:
             return Response({
                 "message": "Dimension provided not available for this problem"
             })
 
         if serializer.is_valid():
-            question = Problem.objects.get(question_id=question_id)
+            question = Problem.objects.get(id=id)
             data = {}
             data['language'] = question.language  # To be changed later
             data['code'] = question.fitness_function
@@ -153,7 +137,7 @@ class AddSubmission(APIView):
             print(score_recieved)
             if question.type == "Minimization":
                 score_recieved = -score_recieved
-            serializer.save(question_id=Problem.objects.get(question_id=question_id), user_id=userid,
+            serializer.save(id=Problem.objects.get(id=id), user_id=userid,
                             score=score_recieved)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -188,12 +172,12 @@ class SubmissionView(viewsets.ViewSet):
                 return Response({
                     "message": "questionid Required"
                 })
-            questionid = request.data['questionid']
-            if not Problem.objects.filter(question_id=questionid).exists():
+            id = request.data['questionid']
+            if not Problem.objects.filter(id=id).exists():
                 return Response({
                     "message": "Question ID Not found in database!"
                 })
-            submissions = Submission.objects.filter(question_id=questionid)
+            submissions = Submission.objects.filter(id=id)
             serializer = SubmissionSerializer(submissions, many=True)
             return Response(serializer.data)
 
@@ -203,7 +187,7 @@ class SubmissionView(viewsets.ViewSet):
 
     def retrieve(self, request, pk):
         submissions = Submission.objects.all()
-        submission = get_object_or_404(submissions, question_id=pk)
+        submission = get_object_or_404(submissions, id=pk)
         serializer = ProblemSerializer(submission)
         return Response(serializer.data)
 

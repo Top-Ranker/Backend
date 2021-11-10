@@ -51,7 +51,6 @@ class Problem(models.Model):
         ('C', 'C')
     ]
 
-    question_id = models.CharField(max_length=100, primary_key=True)
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=20, choices=type_choices)
     description = models.TextField()
@@ -65,7 +64,7 @@ class Problem(models.Model):
 
 
 class Submission(models.Model):
-    question_id = models.ForeignKey(Problem, on_delete=models.CASCADE, to_field='question_id')
+    question_id = models.ForeignKey(Problem, on_delete=models.CASCADE,)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE, to_field='username')
     dimension = models.ForeignKey(Dimension, on_delete=models.CASCADE, to_field='dimension')
     solution = models.TextField()
