@@ -16,6 +16,7 @@ from .models import User, Problem, Submission, BearerAuthentication, Dimension
 from .serializers import ProblemSerializer, SubmissionSerializer
 from .serializers import UserSerializer
 from .utils import custom_problem_data
+
 auth_key = '8Tj4MPqAI7;_oZU`C5Ni'  # Randomly Generated String in Python
 
 
@@ -108,18 +109,18 @@ class AddSubmission(APIView):
     def post(self, request):
         userid = request.user
         serializer = SubmissionSerializer(data=request.data)
-        id = request.data['question_id']
+        questionid = request.data['question_id']
         dimension = int(request.data['dimension'])
 
         available_dimensions = list(
-            Problem.objects.filter(id=id).values_list('dimensions', flat=True))
+            Problem.objects.filter(id=questionid).values_list('dimensions', flat=True))
         if dimension not in available_dimensions:
             return Response({
                 "message": "Dimension provided not available for this problem"
             })
 
         if serializer.is_valid():
-            question = Problem.objects.get(id=id)
+            question = Problem.objects.get(id=questionid)
             data = {}
             data['language'] = question.language  # To be changed later
             data['code'] = question.fitness_function
@@ -137,7 +138,7 @@ class AddSubmission(APIView):
             print(score_recieved)
             if question.type == "Minimization":
                 score_recieved = -score_recieved
-            serializer.save(id=Problem.objects.get(id=id), user_id=userid,
+            serializer.save(question_id=Problem.objects.get(id=questionid), user_id=userid,
                             score=score_recieved)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

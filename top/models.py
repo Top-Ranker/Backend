@@ -64,10 +64,10 @@ class Problem(models.Model):
 
 
 class Submission(models.Model):
-    question_id = models.ForeignKey(Problem, on_delete=models.CASCADE,)
+    question_id = models.ForeignKey(Problem, on_delete=models.CASCADE, )
     user_id = models.ForeignKey(User, on_delete=models.CASCADE, to_field='username')
     dimension = models.ForeignKey(Dimension, on_delete=models.CASCADE, to_field='dimension')
-    solution = models.TextField()
+    solution = models.TextField(blank=True, null=True)
     score = models.IntegerField()
     time = models.TimeField(auto_now=True)
     input = models.TextField(null=True, blank=True)

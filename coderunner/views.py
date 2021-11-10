@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-import random 
-import string 
+import random
+import string
 import os
 import subprocess
 # Create your views here.
@@ -11,9 +11,8 @@ auth_key = '8Tj4MPqAI7;_oZU`C5Ni' # Randomly Generated String in Python
 allowed_languages = ['Python', 'C','C++']
 
 
-class RunCode(APIView):        
+class RunCode(APIView):
     def post(self,request):
-        data = request.data
         file = string.ascii_lowercase + string.digits
         file = [chr for chr in file]
         random.shuffle(file)
@@ -23,13 +22,10 @@ class RunCode(APIView):
             file = [chr for chr in file]
             random.shuffle(file)
             file  = ''.join(file)[:18]
-
-
-        data = request.data
-        language = data['language'] 
-        code = data['code']
-        input = data['input']
-        authkey = data['authkey']
+        language = request.data['language']
+        code = request.data['code']
+        input = request.data['input']
+        authkey = request.data['authkey']
         if auth_key == authkey:
             if language not in allowed_languages:
                 return Response({
@@ -37,11 +33,12 @@ class RunCode(APIView):
                 })
 
             input_file = open(f"code_files/in/{file}.in",'w')
-            input_file.writelines(input)
+            print(input_file,input)
+            input_file.write(str(input))
             input_file.close()
             input_file = open(f"code_files/in/{file}.in",'r')
             if language == 'Python':
-                main_code = open(f"code_files/code/python/{file}.py",'w') 
+                main_code = open(f"code_files/code/python/{file}.py",'w')
                 main_code.writelines(code)
                 main_code.close()
                 p = subprocess.Popen(f'python code_files/code/python/{file}.py', shell=True,stdin=input_file,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -49,7 +46,7 @@ class RunCode(APIView):
                 os.remove(f'./code_files/code/python/{file}.py')
 
             elif language == 'C':
-                main_code = open(f"code_files/code/c/{file}.c",'w') 
+                main_code = open(f"code_files/code/c/{file}.c",'w')
                 main_code.writelines(code)
                 main_code.close()
                 p = subprocess.Popen(f'gcc ./code_files/code/c/{file}.c -o ./code_files/code/c/{file} && ./code_files/code/c/{file}', shell=True,stdin=input_file,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -59,7 +56,7 @@ class RunCode(APIView):
 
 
             elif language == 'C++':
-                main_code = open(f"code_files/code/cpp/{file}.cpp",'w') 
+                main_code = open(f"code_files/code/cpp/{file}.cpp",'w')
                 main_code.writelines(code)
                 main_code.close()
                 p = subprocess.Popen(f'g++ ./code_files/code/cpp/{file}.cpp -o ./code_files/code/cpp/{file} && ./code_files/code/cpp/{file}', shell=True,stdin=input_file,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -67,7 +64,7 @@ class RunCode(APIView):
                 # os.remove(f'./code_files/code/cpp/{file}.cpp')
                 # os.remove(f'./code_files/code/cpp/{file}')
 
-            
+
             input_file.close()
             os.remove(f'./code_files/in/{file}.in')
             return Response({

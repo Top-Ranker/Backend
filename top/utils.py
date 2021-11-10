@@ -14,7 +14,7 @@ def custom_problem_data(problems: django.db.models.query.QuerySet):
             'domain': elem.domain,
             'fitness_function': elem.fitness_function,
             'language': elem.language,
-            'dimension': [{
+            'dimensions': [{
                 'dimension': el.dimension,
                 'participationD': len(Submission.objects.filter(id=elem.id, dimension=el.dimension))
             } for el in elem.dimensions.all()],
